@@ -14,7 +14,7 @@ public class Co_opptyRedirectController {
          SaIPEmpty = false;
         
         this.opptyId= ApexPages.currentPage().getParameters().get('id');
-         system.debug('oppty id : '+opptyId);
+         system.debug('oppty id 1 test GIT: '+opptyId);
         Oppty=[select id,name, StageName,Service_Account__c, Service_Account_IP__c from opportunity where id =: opptyId LIMIT 1];
         if(Oppty.StageName != 'contract' || Oppty.StageName != 'Closed Won' ){
             nonContractStage = true;       
