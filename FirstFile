@@ -60,7 +60,7 @@ public class Co_opptyRedirectController {
             } 
             else if ((Oppty.StageName == 'contract'  || Oppty.StageName == 'Closed Won') && !ProductsEmpty && !SaIPEmpty ){
             PageReference  feedback = new pageReference('/apex/CO_Contract_APTS_WO_Create?OpportunityId='+opptyId+'&AccountId='+Oppty.Service_Account_IP__c  );
-             system.debug('inside the oppty1');
+             system.debug('inside the oppty3');
              feedback.setRedirect(true);
                return feedback;
              } 
