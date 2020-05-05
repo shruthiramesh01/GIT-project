@@ -1,0 +1,87 @@
+public class Co_opptyRedirectController {
+    Public Opportunity  Oppty {set;get;}
+    Public Id opptyId;
+    Public Boolean nonContractStage {set;get;}
+    Public OpportunityLineItem products;
+    Public Boolean ProductsEmpty {set;get;}
+    Public Boolean SaEmpty {set;get;}
+    Public Boolean SaIPEmpty {set;get;}
+  
+    Public Co_opptyRedirectController(ApexPages.StandardController stdController){
+        nonContractStage = false;
+        ProductsEmpty = false; 
+         SaEmpty = false;
+         SaIPEmpty = false;
+        
+        this.opptyId= ApexPages.currentPage().getParameters().get('id');
+         system.debug('oppty id : '+opptyId);
+        Oppty=[select id,name, StageName,Service_Account__c, Service_Account_IP__c from opportunity where id =: opptyId LIMIT 1];
+        if(Oppty.StageName != 'contract' || Oppty.StageName != 'Closed Won' ){
+            nonContractStage = true;       
+        }
+        List<OpportunityLineItem> Products = [select id from OpportunityLineItem where OpportunityId =: opptyId];
+        if(Products.isEmpty()){
+           
+        }
+        List<Opportunity>Oppties =[select id,name, StageName,Service_Account__c,Service_Account_IP__c  from opportunity where id =: opptyId LIMIT 1];       
+        for(Opportunity Opp: Oppties){
+         system.debug('the service account type'+opp.Service_Account__c);
+        if(Opp.Service_Account__c == null && opp.Service_Account_IP__c   !=null){
+            SaEmpty = true;
+           
+            system.debug('Ucaas changes1'+SaEmpty );
+          //  system.debug('Ucaas changes1.1'+productorg );
+            system.debug('Ucaas changes1.2'+SaIPEmpty );
+            
+        }else if (Opp.Service_Account_IP__c  == null && Opp.Service_Account__c == null){
+        SaIPEmpty = true;
+       
+        system.debug('Ucaas changes2'+SaEmpty );
+      //  system.debug('Ucaas changes2.1'+productorg );
+            system.debug('Ucaas changes2.2'+SaIPEmpty );
+        }
+       } 
+      
+     }
+    
+    Public pageReference redirectToCO(){
+       // this.Oppty=(Opportunity)controller.getRecord();
+       system.debug('oppty id :3 ');
+        
+        Oppty=[select id,name,AccountId,Service_Account__c,Service_Account_IP__c,StageName from opportunity where id =: opptyId LIMIT 1];
+       if(Oppty != null){
+        system.debug('oppty id : '+Oppty);
+        if((Oppty.StageName == 'contract'  || Oppty.StageName == 'Closed Won') && !ProductsEmpty && !SaEmpty  ){
+            //PageReference  feedback = new pageReference('/apex/CO_Contract_APTS_WO_Create?OpportunityId='+opptyId+'&AccountId='+Oppty.AccountId);
+            PageReference  feedback = new pageReference('/apex/CO_Contract_APTS_WO_Create?OpportunityId='+opptyId+'&AccountId='+Oppty.Service_Account__c);
+            system.debug('inside the oppty');
+             feedback.setRedirect(true);
+             return feedback; 
+            } 
+            else if ((Oppty.StageName == 'contract'  || Oppty.StageName == 'Closed Won') && !ProductsEmpty && !SaIPEmpty ){
+            PageReference  feedback = new pageReference('/apex/CO_Contract_APTS_WO_Create?OpportunityId='+opptyId+'&AccountId='+Oppty.Service_Account_IP__c  );
+             system.debug('inside the oppty1');
+             feedback.setRedirect(true);
+               return feedback;
+             } 
+          
+        
+        }
+       
+    
+         return null;
+    }
+    Public PageReference backToOppty(){
+        Oppty=[select id,name, StageName from opportunity where id =: opptyId LIMIT 1];
+        system.debug('products'+ProductsEmpty );
+        system.debug('SaEmpty '+SaEmpty );
+       if(Oppty.StageName != 'contract' || Oppty.StageName != 'Closed Won'  || ProductsEmpty || SaEmpty ){
+        
+             PageReference  feedback = new ApexPages.StandardController(Oppty).view();
+            feedback.setRedirect(true);  
+            return feedback;
+        }
+        return null;
+        
+    }
+}
